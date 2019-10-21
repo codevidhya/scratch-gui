@@ -1,10 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
 import styles from './cv-header.css';
-import PropTypes from 'prop-types';
-
-
-import saveIcon from './save.svg';
 
 class CvHeaderComponent extends React.Component {
   constructor (props) {
