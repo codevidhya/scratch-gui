@@ -50,7 +50,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
             bindAll(this, [
                 'getProjectThumbnail',
                 'leavePageConfirm',
-                'tryToAutoSave'
+                'tryToAutoSave',
+                'saveProjectToCodevidhya'
             ]);
         }
         componentWillMount () {
@@ -59,6 +60,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 // but then it'd be hard to turn this listening off in our tests
                 window.onbeforeunload = e => this.leavePageConfirm(e);
             }
+
+            document.addEventListener('keydown', this.ctrlPlusSListener.bind(this), false);
+            window.addEventListener('message', this.saveEventFromCodevidhyaListener.bind(this));
 
             // Allow the GUI consumer to pass in a function to receive a trigger
             // for triggering thumbnail or whole project saves.
@@ -114,6 +118,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
             }
         }
         componentWillUnmount () {
+            document.removeEventListener('keydown', this.ctrlPlusSListener);
+            window.removeEventListener('message', this.saveEventFromCodevidhyaListener);
             this.clearAutoSaveTimeout();
             // Cant unset the beforeunload because it might no longer belong to this component
             // i.e. if another of this component has been mounted before this one gets unmounted
@@ -297,9 +303,42 @@ const ProjectSaverHOC = function (WrappedComponent) {
             }
         }
 
+        ctrlPlusSListener(e) {
+            if (
+                (window.navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey) &&
+                e.keyCode == 83
+              ) {
+                e.preventDefault();
+                this.saveProjectToCodevidhya();
+              }
+        }
+
+        saveEventFromCodevidhyaListener(event) {
+            // This function will be triggered from the https://studio.codevidhya.com/projects/{id} page, i.e. ProjectEditor.vue
+            if (~event.origin.indexOf("http://127.0.0.1:8080") || ~event.origin.indexOf("http://localhost:8080")) {
+            // if (~event.origin.indexOf("http://studio.codevidhya.com") || ~event.origin.indexOf("http://apptest.codevidhya.com") || ~event.origin.indexOf("http://dev.codevidhya.com")) {
+              if(event.data.action && event.data.action == 'initiate_save_project') {
+                this.saveProjectToCodevidhya();
+              }
+            } else {
+              // The data hasn't been sent from your site!
+              // Be careful! Do not use it.
+              return;
+            }
+        }
+
+        saveProjectToCodevidhya () {
+            this.props.saveProjectSb3().then(content => {
+                window.top.postMessage({name: 'saveScratchProject', data: content}, 'http://localhost:8080');
+                this.props.onSetProjectUnchanged();
+                return;
+            });
+        }
+
         render () {
             const {
                 /* eslint-disable no-unused-vars */
+                saveProjectSb3,
                 autoSaveTimeoutId,
                 autoSaveIntervalSecs,
                 isCreatingCopy,
@@ -341,6 +380,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             return (
                 <WrappedComponent
                     isCreating={isAnyCreatingNewState}
+                    onSaveProjectClick={this.saveProjectToCodevidhya}
                     {...componentProps}
                 />
             );
@@ -348,6 +388,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
     }
 
     ProjectSaverComponent.propTypes = {
+        saveProjectSb3: PropTypes.func,
         autoSaveIntervalSecs: PropTypes.number.isRequired,
         autoSaveTimeoutId: PropTypes.number,
         canCreateNew: PropTypes.bool,
@@ -401,6 +442,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
         const loadingState = state.scratchGui.projectState.loadingState;
         const isShowingWithId = getIsShowingWithId(loadingState);
         return {
+            saveProjectSb3: state.scratchGui.vm.saveProjectSb3.bind(state.scratchGui.vm),
             autoSaveTimeoutId: state.scratchGui.timeout.autoSaveTimeoutId,
             isAnyCreatingNewState: getIsAnyCreatingNewState(loadingState),
             isLoading: getIsLoading(loadingState),

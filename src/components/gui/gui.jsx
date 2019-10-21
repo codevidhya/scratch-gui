@@ -40,6 +40,8 @@ import codeIcon from './icon--code.svg';
 import costumesIcon from './icon--costumes.svg';
 import soundsIcon from './icon--sounds.svg';
 
+import CvHeaderComponent from '../cv-header/cv-header.jsx';
+
 const messages = defineMessages({
     addExtension: {
         id: 'gui.gui.addExtension',
@@ -54,6 +56,7 @@ let isRendererSupported = null;
 
 const GUIComponent = props => {
     const {
+        onSaveProjectClick,
         accountNavOpen,
         activeTabIndex,
         alertsVisible,
@@ -200,7 +203,7 @@ const GUIComponent = props => {
                         onRequestClose={onRequestCloseBackdropLibrary}
                     />
                 ) : null}
-                <MenuBar
+                {/*<MenuBar
                     accountNavOpen={accountNavOpen}
                     authorId={authorId}
                     authorThumbnailUrl={authorThumbnailUrl}
@@ -229,7 +232,7 @@ const GUIComponent = props => {
                     onShare={onShare}
                     onToggleLoginOpen={onToggleLoginOpen}
                     onUpdateProjectTitle={onUpdateProjectTitle}
-                />
+                />*/}
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>
                         <Box className={styles.editorWrapper}>
@@ -241,55 +244,58 @@ const GUIComponent = props => {
                                 selectedTabPanelClassName={tabClassNames.tabPanelSelected}
                                 onSelect={onActivateTab}
                             >
-                                <TabList className={tabClassNames.tabList}>
-                                    <Tab className={tabClassNames.tab}>
-                                        <img
-                                            draggable={false}
-                                            src={codeIcon}
-                                        />
-                                        <FormattedMessage
-                                            defaultMessage="Code"
-                                            description="Button to get to the code panel"
-                                            id="gui.gui.codeTab"
-                                        />
-                                    </Tab>
-                                    <Tab
-                                        className={tabClassNames.tab}
-                                        onClick={onActivateCostumesTab}
-                                    >
-                                        <img
-                                            draggable={false}
-                                            src={costumesIcon}
-                                        />
-                                        {targetIsStage ? (
-                                            <FormattedMessage
-                                                defaultMessage="Backdrops"
-                                                description="Button to get to the backdrops panel"
-                                                id="gui.gui.backdropsTab"
+                                <CvHeaderComponent onSaveProjectClick={onSaveProjectClick}>
+                                    <TabList className={tabClassNames.tabList}>
+                                        <Tab className={tabClassNames.tab}>
+                                            <img
+                                                draggable={false}
+                                                src={codeIcon}
                                             />
-                                        ) : (
                                             <FormattedMessage
-                                                defaultMessage="Costumes"
-                                                description="Button to get to the costumes panel"
-                                                id="gui.gui.costumesTab"
+                                                defaultMessage="Code"
+                                                description="Button to get to the code panel"
+                                                id="gui.gui.codeTab"
                                             />
-                                        )}
-                                    </Tab>
-                                    <Tab
-                                        className={tabClassNames.tab}
-                                        onClick={onActivateSoundsTab}
-                                    >
-                                        <img
-                                            draggable={false}
-                                            src={soundsIcon}
-                                        />
-                                        <FormattedMessage
-                                            defaultMessage="Sounds"
-                                            description="Button to get to the sounds panel"
-                                            id="gui.gui.soundsTab"
-                                        />
-                                    </Tab>
-                                </TabList>
+                                        </Tab>
+                                        <Tab
+                                            className={tabClassNames.tab}
+                                            onClick={onActivateCostumesTab}
+                                        >
+                                            <img
+                                                draggable={false}
+                                                src={costumesIcon}
+                                            />
+                                            {targetIsStage ? (
+                                                <FormattedMessage
+                                                    defaultMessage="Backdrops"
+                                                    description="Button to get to the backdrops panel"
+                                                    id="gui.gui.backdropsTab"
+                                                />
+                                            ) : (
+                                                <FormattedMessage
+                                                    defaultMessage="Costumes"
+                                                    description="Button to get to the costumes panel"
+                                                    id="gui.gui.costumesTab"
+                                                />
+                                            )}
+                                        </Tab>
+                                        <Tab
+                                            className={tabClassNames.tab}
+                                            onClick={onActivateSoundsTab}
+                                        >
+                                            <img
+                                                draggable={false}
+                                                src={soundsIcon}
+                                            />
+                                            <FormattedMessage
+                                                defaultMessage="Sounds"
+                                                description="Button to get to the sounds panel"
+                                                id="gui.gui.soundsTab"
+                                            />
+                                        </Tab>
+                                    </TabList>
+                                </CvHeaderComponent>
+                                
                                 <TabPanel className={tabClassNames.tabPanel}>
                                     <Box className={styles.blocksWrapper}>
                                         <Blocks
@@ -327,9 +333,9 @@ const GUIComponent = props => {
                                     {soundsTabVisible ? <SoundTab vm={vm} /> : null}
                                 </TabPanel>
                             </Tabs>
-                            {backpackVisible ? (
+                            {/*{backpackVisible ? (
                                 <Backpack host={backpackHost} />
-                            ) : null}
+                            ) : null}*/}
                         </Box>
 
                         <Box className={classNames(styles.stageAndTargetWrapper, styles[stageSize])}>
@@ -355,6 +361,7 @@ const GUIComponent = props => {
 };
 
 GUIComponent.propTypes = {
+    onSaveProjectClick: PropTypes.func,
     accountNavOpen: PropTypes.bool,
     activeTabIndex: PropTypes.number,
     authorId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]), // can be false

@@ -1,0 +1,61 @@
+.cv-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-right: 16px;
+}
+
+.flex-filler {
+  flex-grow: 1;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.button {
+  width: 32px;
+  height: 28px;
+  margin-left: 8px;
+  padding: 0 8px;
+  text-align: center;
+  background: transparent;
+  border: 1px solid #000;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 200ms;
+}
+
+.button.save-project {
+  width: auto;
+  background: rgb(43, 199, 22);
+  border-color: rgb(34, 153, 18);
+  color: #fff;
+}
+
+.button.save-project:hover {
+  opacity: 0.8;
+}
+
+.button.close-project {
+  width: auto;
+  background: rgb(223, 43, 43);
+  border-color: rgb(179, 33, 33);
+  color: #fff;
+}
+
+.button.close-project:hover {
+  opacity: 0.8;
+}
+
+.button:active, .button:focus {
+  outline: none;
+}
+
+.button img {
+  line-height: 32px;
+  width: 18px;
+  opacity: 0.6;
+}

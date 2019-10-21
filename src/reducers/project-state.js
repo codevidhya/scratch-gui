@@ -142,6 +142,13 @@ const reducer = function (state, action) {
         }
         return state;
     case DONE_LOADING_VM_WITHOUT_ID:
+        if (state.loadingState === LoadingState.FETCHING_NEW_DEFAULT) {
+            // Codevidhya
+            return Object.assign({}, state, {
+                loadingState: LoadingState.SHOWING_WITHOUT_ID,
+                projectId: defaultProjectId
+            });
+        }
         if (state.loadingState === LoadingState.LOADING_VM_FILE_UPLOAD ||
             state.loadingState === LoadingState.LOADING_VM_NEW_DEFAULT) {
             return Object.assign({}, state, {
@@ -461,6 +468,12 @@ const doneUpdatingProject = loadingState => {
     }
 };
 
+const onLoadedProjectFromCodevidhya = loadingState => {
+    return {
+        type: DONE_LOADING_VM_WITHOUT_ID
+    }
+}
+
 const projectError = error => ({
     type: START_ERROR,
     error: error
@@ -533,6 +546,7 @@ export {
     manualUpdateProject,
     onFetchedProjectData,
     onLoadedProject,
+    onLoadedProjectFromCodevidhya,
     projectError,
     remixProject,
     requestNewProject,

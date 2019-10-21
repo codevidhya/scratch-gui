@@ -4,6 +4,8 @@ import {intlShape, injectIntl} from 'react-intl';
 import bindAll from 'lodash.bindall';
 import {connect} from 'react-redux';
 
+import VM from 'scratch-vm';
+
 import {setProjectUnchanged} from '../reducers/project-changed';
 import {
     LoadingStates,
@@ -12,6 +14,7 @@ import {
     getIsLoading,
     getIsShowingProject,
     onFetchedProjectData,
+    onLoadedProjectFromCodevidhya,
     projectError,
     setProjectId
 } from '../reducers/project-state';
@@ -22,6 +25,8 @@ import {
 
 import log from './log';
 import storage from './storage';
+
+const axios = require('axios').default;
 
 /* Higher Order Component to provide behavior for loading projects by id. If
  * there's no id, the default project is loaded.
@@ -68,7 +73,23 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             }
         }
         fetchProject (projectId, loadingState) {
-            return storage
+            var myThis = this;
+            var file = new URL(window.location).searchParams.get('file');
+            file = 'http://localhost:5000' + file;
+            axios.get(file,
+            {
+                responseType: 'arraybuffer'
+            })
+            .then(function (response) {
+                return myThis.props.vm.loadProject(response.data);
+            })
+            .then(function() {
+                myThis.props.onLoadedProjectFromCodevidhya(loadingState);
+            })
+            .catch(function (error) {
+            });
+            return Promise.resolve(null);
+            /*return storage
                 .load(storage.AssetType.Project, projectId, storage.DataFormat.JSON)
                 .then(projectAsset => {
                     if (projectAsset) {
@@ -82,7 +103,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 .catch(err => {
                     this.props.onError(err);
                     log.error(err);
-                });
+                });*/
         }
         render () {
             const {
@@ -94,6 +115,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 onActivateTab,
                 onError: onErrorProp,
                 onFetchedProjectData: onFetchedProjectDataProp,
+                onLoadedProjectFromCodevidhya,
                 onProjectUnchanged,
                 projectHost,
                 projectId,
@@ -123,11 +145,13 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         onActivateTab: PropTypes.func,
         onError: PropTypes.func,
         onFetchedProjectData: PropTypes.func,
+        onLoadedProjectFromCodevidhya: PropTypes.func,
         onProjectUnchanged: PropTypes.func,
         projectHost: PropTypes.string,
         projectId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         reduxProjectId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        setProjectId: PropTypes.func
+        setProjectId: PropTypes.func,
+        vm: PropTypes.instanceOf(VM).isRequired
     };
     ProjectFetcherComponent.defaultProps = {
         assetHost: 'https://assets.scratch.mit.edu',
@@ -140,13 +164,17 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         isLoadingProject: getIsLoading(state.scratchGui.projectState.loadingState),
         isShowingProject: getIsShowingProject(state.scratchGui.projectState.loadingState),
         loadingState: state.scratchGui.projectState.loadingState,
-        reduxProjectId: state.scratchGui.projectState.projectId
+        reduxProjectId: state.scratchGui.projectState.projectId,
+        vm: state.scratchGui.vm
     });
     const mapDispatchToProps = dispatch => ({
         onActivateTab: tab => dispatch(activateTab(tab)),
         onError: error => dispatch(projectError(error)),
         onFetchedProjectData: (projectData, loadingState) =>
             dispatch(onFetchedProjectData(projectData, loadingState)),
+        onLoadedProjectFromCodevidhya: (loadingState) => {
+            dispatch(onLoadedProjectFromCodevidhya(loadingState))
+        },
         setProjectId: projectId => dispatch(setProjectId(projectId)),
         onProjectUnchanged: () => dispatch(setProjectUnchanged())
     });

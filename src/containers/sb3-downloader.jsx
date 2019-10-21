@@ -30,6 +30,8 @@ class SB3Downloader extends React.Component {
             if (this.props.onSaveFinished) {
                 this.props.onSaveFinished();
             }
+            window.top.postMessage({name: 'saveScratchProject', data: content}, 'http://localhost:8080');
+            return;
             downloadBlob(this.props.projectFilename, content);
         });
     }
