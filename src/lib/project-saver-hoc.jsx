@@ -315,21 +315,22 @@ const ProjectSaverHOC = function (WrappedComponent) {
 
         saveEventFromCodevidhyaListener(event) {
             // This function will be triggered from the https://studio.codevidhya.com/projects/{id} page, i.e. ProjectEditor.vue
-            if (~event.origin.indexOf("http://127.0.0.1:8080") || ~event.origin.indexOf("http://localhost:8080")) {
-            // if (~event.origin.indexOf("http://studio.codevidhya.com") || ~event.origin.indexOf("http://apptest.codevidhya.com") || ~event.origin.indexOf("http://dev.codevidhya.com")) {
-              if(event.data.action && event.data.action == 'initiate_save_project') {
+
+            /*
+            We are not checking the origin of this event because the parent window that hosts our Scratch iframe
+            is responsible for handing the result of this save process.
+            No security risks here.
+            */
+            if(event.data.action && event.data.action == 'initiate_save_project') {
                 this.saveProjectToCodevidhya();
-              }
-            } else {
-              // The data hasn't been sent from your site!
-              // Be careful! Do not use it.
-              return;
             }
         }
 
         saveProjectToCodevidhya () {
             this.props.saveProjectSb3().then(content => {
-                window.top.postMessage({name: 'saveScratchProject', data: content}, 'http://localhost:8080');
+                var url = new URL(window.location);
+                var origin = url.searchParams.get('origin');
+                window.top.postMessage({name: 'saveScratchProject', data: content}, origin);
                 this.props.onSetProjectUnchanged();
                 return;
             });

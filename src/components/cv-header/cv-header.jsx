@@ -30,7 +30,9 @@ class CvHeaderComponent extends React.Component {
   }
 
   onCloseProject() {
-    window.top.postMessage({name: 'closeScratchProject'}, 'http://localhost:8080');
+    var url = new URL(window.location);
+    var origin = url.searchParams.get('origin');
+    window.top.postMessage({name: 'closeScratchProject'}, origin);
   }
 }
 

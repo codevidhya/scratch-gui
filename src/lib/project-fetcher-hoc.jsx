@@ -74,8 +74,8 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         }
         fetchProject (projectId, loadingState) {
             var myThis = this;
-            var file = new URL(window.location).searchParams.get('file');
-            file = 'http://localhost:5000' + file;
+            var url = new URL(window.location);
+            var file = url.searchParams.get('origin') + url.searchParams.get('file');
             axios.get(file,
             {
                 responseType: 'arraybuffer'
