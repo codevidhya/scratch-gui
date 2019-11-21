@@ -7,6 +7,8 @@ import {connect} from 'react-redux';
 import VM from 'scratch-vm';
 
 import {setProjectUnchanged} from '../reducers/project-changed';
+import {setPlayer, setFullScreen} from '../reducers/mode';
+
 import {
     LoadingStates,
     getIsCreatingNew,
@@ -73,23 +75,22 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             }
         }
         fetchProject (projectId, loadingState) {
-            var myThis = this;
-            var url = new URL(window.location);
-            var file = url.searchParams.get('origin') + url.searchParams.get('file');
+            const myThis = this;
+            const url = new URL(window.location);
+            const file = url.searchParams.get('origin') + url.searchParams.get('file');
+            const mode = url.searchParams.get('mode');
             axios.get(file,
-            {
-                responseType: 'arraybuffer'
-            })
-            .then(function (response) {
-                return myThis.props.vm.loadProject(response.data);
-            })
-            .then(function() {
-                myThis.props.onLoadedProjectFromCodevidhya(loadingState);
-            })
-            .catch(function (error) {
-            });
+                {
+                    responseType: 'arraybuffer'
+                })
+                .then(response => myThis.props.vm.loadProject(response.data))
+                .then(() => {
+                    myThis.props.onLoadedProjectFromCodevidhya(loadingState, mode);
+                })
+                .catch(error => {
+                });
             return Promise.resolve(null);
-            /*return storage
+            /* return storage
                 .load(storage.AssetType.Project, projectId, storage.DataFormat.JSON)
                 .then(projectAsset => {
                     if (projectAsset) {
@@ -172,8 +173,12 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         onError: error => dispatch(projectError(error)),
         onFetchedProjectData: (projectData, loadingState) =>
             dispatch(onFetchedProjectData(projectData, loadingState)),
-        onLoadedProjectFromCodevidhya: (loadingState) => {
-            dispatch(onLoadedProjectFromCodevidhya(loadingState))
+        onLoadedProjectFromCodevidhya: (loadingState, mode) => {
+            if (mode !== 'viewonly') {
+                dispatch(setPlayer(false));
+                dispatch(setFullScreen(false));
+            }
+            dispatch(onLoadedProjectFromCodevidhya(loadingState));
         },
         setProjectId: projectId => dispatch(setProjectId(projectId)),
         onProjectUnchanged: () => dispatch(setProjectUnchanged())

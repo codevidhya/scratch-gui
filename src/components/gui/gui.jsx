@@ -56,7 +56,7 @@ let isRendererSupported = null;
 
 const GUIComponent = props => {
     const {
-        onSaveProjectClick,
+        handleSaveProjectClick,
         accountNavOpen,
         activeTabIndex,
         alertsVisible,
@@ -203,7 +203,7 @@ const GUIComponent = props => {
                         onRequestClose={onRequestCloseBackdropLibrary}
                     />
                 ) : null}
-                {/*<MenuBar
+                {/* <MenuBar
                     accountNavOpen={accountNavOpen}
                     authorId={authorId}
                     authorThumbnailUrl={authorThumbnailUrl}
@@ -244,7 +244,7 @@ const GUIComponent = props => {
                                 selectedTabPanelClassName={tabClassNames.tabPanelSelected}
                                 onSelect={onActivateTab}
                             >
-                                <CvHeaderComponent onSaveProjectClick={onSaveProjectClick}>
+                                <CvHeaderComponent handleSaveProjectClick={handleSaveProjectClick}>
                                     <TabList className={tabClassNames.tabList}>
                                         <Tab className={tabClassNames.tab}>
                                             <img
@@ -333,7 +333,7 @@ const GUIComponent = props => {
                                     {soundsTabVisible ? <SoundTab vm={vm} /> : null}
                                 </TabPanel>
                             </Tabs>
-                            {/*{backpackVisible ? (
+                            {/* {backpackVisible ? (
                                 <Backpack host={backpackHost} />
                             ) : null}*/}
                         </Box>
@@ -361,7 +361,7 @@ const GUIComponent = props => {
 };
 
 GUIComponent.propTypes = {
-    onSaveProjectClick: PropTypes.func,
+    handleSaveProjectClick: PropTypes.func,
     accountNavOpen: PropTypes.bool,
     activeTabIndex: PropTypes.number,
     authorId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]), // can be false

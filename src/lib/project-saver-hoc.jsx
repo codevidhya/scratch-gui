@@ -303,17 +303,17 @@ const ProjectSaverHOC = function (WrappedComponent) {
             }
         }
 
-        ctrlPlusSListener(e) {
+        ctrlPlusSListener (e) {
             if (
                 (window.navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey) &&
                 e.keyCode == 83
-              ) {
+            ) {
                 e.preventDefault();
                 this.saveProjectToCodevidhya();
-              }
+            }
         }
 
-        saveEventFromCodevidhyaListener(event) {
+        saveEventFromCodevidhyaListener (event) {
             // This function will be triggered from the https://studio.codevidhya.com/projects/{id} page, i.e. ProjectEditor.vue
 
             /*
@@ -321,15 +321,19 @@ const ProjectSaverHOC = function (WrappedComponent) {
             is responsible for handing the result of this save process.
             No security risks here.
             */
-            if(event.data.action && event.data.action == 'initiate_save_project') {
+            if (event.data.action && event.data.action == 'initiate_save_project') {
                 this.saveProjectToCodevidhya();
             }
         }
 
         saveProjectToCodevidhya () {
+            const url = new URL(window.location);
+            const origin = url.searchParams.get('origin');
+            const mode = url.searchParams.get('mode');
+            if (mode === 'viewonly') {
+                return;
+            }
             this.props.saveProjectSb3().then(content => {
-                var url = new URL(window.location);
-                var origin = url.searchParams.get('origin');
                 window.top.postMessage({name: 'saveScratchProject', data: content}, origin);
                 this.props.onSetProjectUnchanged();
                 return;
@@ -381,7 +385,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             return (
                 <WrappedComponent
                     isCreating={isAnyCreatingNewState}
-                    onSaveProjectClick={this.saveProjectToCodevidhya}
+                    handleSaveProjectClick={this.saveProjectToCodevidhya}
                     {...componentProps}
                 />
             );

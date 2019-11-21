@@ -468,11 +468,9 @@ const doneUpdatingProject = loadingState => {
     }
 };
 
-const onLoadedProjectFromCodevidhya = loadingState => {
-    return {
+const onLoadedProjectFromCodevidhya = loadingState => ({
         type: DONE_LOADING_VM_WITHOUT_ID
-    }
-}
+    });
 
 const projectError = error => ({
     type: START_ERROR,
